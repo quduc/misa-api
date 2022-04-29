@@ -47,5 +47,3 @@ _ide_helper_models.php
 # constant generate
 resources/js/common/configs/constantGenerate.js
 
-composer.lock
-package-lock.json
