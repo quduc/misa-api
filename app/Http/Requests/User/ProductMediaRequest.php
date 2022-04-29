@@ -2,10 +2,9 @@
 
 namespace App\Http\Requests\User;
 
-use App\Rules\MatchOldPassword;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdatePasswordRequest extends FormRequest
+class ProductMediaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,18 +24,22 @@ class UpdatePasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'current_password'      => ['bail', 'required', new MatchOldPassword()],
-            'password'              => 'bail|required|min:8',
-            'password_confirmation' => 'bail|required|same:password'
+            'files'   => 'required|array',
+            'files.*' => 'image',
+        ];
+    }
+
+    public function attributes()
+    {
+        return [
+            'files.*' => 'Hình ảnh'
         ];
     }
 
     public function messages()
     {
         return [
-            'current_password.password' => 'Mật khẩu hiện tại không chính xác.',
+            'files.*.max' => 'Hình ảnh phải là tệp có dung lượng từ 3MB trở xuống. ..'
         ];
     }
-
-
 }

@@ -46,14 +46,14 @@ class FileService {
 
     public function uploadFile($file, string $folder = '', bool $includeTime = true): array
     {
-        switch ($this->driver) {
-            case 'local':
+        // switch ($this->driver) {
+        //     case 'local':
                 return $this->uploadFileToLocal($file, $folder);
-            case 's3':
-                return $this->uploadFileToS3($file, $folder);
-            default:
-                throw new \Exception('upload file error');
-        }
+            // case 's3':
+            //     return $this->uploadFileToS3($file, $folder);
+            // default:
+            //     throw new \Exception('upload file error');
+        // }
     }
 
     public function exist(string $fileName)
@@ -99,6 +99,7 @@ class FileService {
 
         return [
             'path' => $folder . $fileName,
+            // 'url' => url($folder) . '/' . $fileName,
             'url' => url($folder) . '/' . $fileName,
         ];
     }

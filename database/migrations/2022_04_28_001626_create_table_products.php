@@ -24,7 +24,7 @@ class CreateTableProducts extends Migration
             $table->string('out_of_stock_date')->nullable();
             $table->integer('price')->default(0);
             $table->integer('discount')->default(0)->index();
-            $table->tinyInteger('is_availabel')->default(0)->index();
+            $table->tinyInteger('is_available')->default(0)->index();
             $table->tinyInteger('is_active')->default(1)->index();
             $table->timestamps();
             $table->softDeletes();
