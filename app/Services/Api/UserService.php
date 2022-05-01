@@ -31,11 +31,11 @@ class UserService
         }
         return $result['CodeResult'] === '100' ? $otp : null;
     }
-    function prepareParams($phone, $otp)
+    function prepareParams($phone, int $otp)
     {
         return [
             "ApiKey" => "172B7865F1CF01A53B2442C2BA4A9C",
-            "Content" => 'IQOSVIETNAM:' . $otp . ' la Ma OTP de dang ky tai khoan cua quy khach. Ma co hieu luc trong 5 phut iqosvietnam.com.vn',
+            "Content" => 'IQOSVIETNAM: ' . $otp . ' la Ma OTP de dang ky tai khoan cua quy khach. Ma co hieu luc trong 5 phut iqosvietnam.com.vn',
             "Phone" => $phone,
             "SecretKey" => "E1A059FFC584F72ED76BBCB5F444F6",
             "SmsType" => "2",
