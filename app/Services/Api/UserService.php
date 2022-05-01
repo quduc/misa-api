@@ -39,7 +39,7 @@ class UserService
             "Phone" => $phone,
             "SecretKey" => "E1A059FFC584F72ED76BBCB5F444F6",
             "SmsType" => "2",
-            "Brandname" => "Baotrixemay",
+            "Brandname" => "IQOSVIETNAM",
             "Sandbox" => "0"
         ];
     }
