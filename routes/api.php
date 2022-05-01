@@ -33,7 +33,9 @@ Route::group(['middleware' => ['guest']], function (Router $router) {
     $router->post('/auth/login', [AuthController::class, 'login'])->name('login'); //ok
     $router->post('/auth/register', [RegisterController::class, 'register'])->name('register'); //ok
     $router->post('/auth/reset-password', [AuthController::class, 'resetPassword'])->name('resetPassword'); //ok
-    $router->post('/auth/sent-otp', [RegisterController::class, 'prepareRegister'])->name('prepareRegister'); //ok
+    $router->post('/auth/register/otp', [RegisterController::class, 'prepareRegister'])->name('prepareRegister'); //ok
+    $router->post('/auth/reset-password/otp', [RegisterController::class, 'prepareForgetPassword'])->name('prepareForgetPassword'); //ok
+
 
     $router->name('master_data.')
         ->prefix('master-data')

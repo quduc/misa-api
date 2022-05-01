@@ -28,14 +28,24 @@ class RegisterController extends \App\Http\Controllers\Auth\RegisterController
     public function prepareRegister(Request $request)
     {
         $data = [
-            'otp' => $this->userService->sendOTP($request->phone)
+            'otp' => $this->userService->sendOTPRegister($request->phone)
         ];
         return $this->json($data);
     }
 
+    public function prepareForgetPassword(Request $request)
+    {
+        $data = [
+            'otp' => $this->userService->sendOTPPassword($request->phone)
+        ];
+        return $this->json($data);
+    }
+
+
+
     public function sendOTP(Request $request)
     {
-        return $this->userService->sendOTP($request->phone);
+        return $this->userService->sendOTPRegister($request->phone);
     }
 
     protected function registered(Request $request, $user)
