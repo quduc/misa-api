@@ -10,10 +10,10 @@ use App\Models\Category;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Product extends Model
+class BuyRequest extends Model
 {
     use HasFactory, HasModel;
-    protected $table = 'products';
+    protected $table = 'buy_requests';
     /**
      * The attributes that are mass assignable.
      *
@@ -23,13 +23,11 @@ class Product extends Model
         'user_id',
         'category_id',
         'unit',
-        'price',
         'description',
         'discount',
-        'is_available',
         'is_active',
-        'inventory_number',
-        'out_of_stock_date',
+        'quantity',
+        'limited_date',
         'name'
     ];
     /**
@@ -48,7 +46,6 @@ class Product extends Model
 
     public function user(): BelongsTo
     {
-
         return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');
     }
     public function images(): HasMany
@@ -56,11 +53,17 @@ class Product extends Model
         return $this->hasMany(\App\Models\ProductMedia::class, 'product_id');
     }
 
+    public function categories(): HasOne
+    {
+        return $this->hasOne(\App\Models\Category::class, 'category_id');
+    }
 
     public function favorite()
     {
         return $this->hasOne(\App\Models\ProductFavorite::class, 'product_id');
     }
+
+
 
     public function getCategoryAttribute()
     {
@@ -68,6 +71,7 @@ class Product extends Model
         return Category::where('id', $this->category_id)
             ->first();
     }
+
     public function getUserAttribute()
     {
         if (empty($this->user_id)) return null;

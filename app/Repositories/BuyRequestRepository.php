@@ -2,19 +2,19 @@
 
 namespace App\Repositories;
 
-use App\Models\Product;
+use App\Models\BuyRequest;
 use App\Traits\HasQuery;
 
-class ProductRepository extends BaseRepository
+class BuyRequestRepository extends BaseRepository
 {
     use HasQuery;
 
     function modelName(): string
     {
-        return Product::class;
+        return BuyRequest::class;
     }
 
-    public function productFilter(array $params)
+    public function buyRequestFilter(array $params)
     {
         $whereEquals  = $this->buildWhereEqual($params['where_equals'] ?? []);
         $whereIns     = $this->buildWhereIn($params['where_ins'] ?? []);
@@ -23,7 +23,6 @@ class ProductRepository extends BaseRepository
         // $orWheres = $this->cleanValueNull($params['or_wheres'] ?? []);
         $sort         = $this->buildSort($params['sort'] ?? []);
         return $this->getModel()
-            ->with('images')
             ->when($whereEquals, function ($query) use ($whereEquals) {
                 $query->where($whereEquals);
             })
@@ -47,7 +46,7 @@ class ProductRepository extends BaseRepository
 
     public function getListPaginate(array $params)
     {
-        return $this->productFilter($params)->paginate(10);
+        return $this->buyRequestFilter($params)->paginate(10);
     }
 
     public function getList(array $params, int $limit = 8)
@@ -59,7 +58,7 @@ class ProductRepository extends BaseRepository
     public function findById($id)
     {
         return $this->getModel()->active()
-            ->with('images')->find($id);
+            ->find($id);
     }
 
     public function update($id, array $params)

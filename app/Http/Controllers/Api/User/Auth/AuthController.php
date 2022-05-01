@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\User\Auth;
 
 use App\Http\Controllers\Api\ApiController;
 use App\Models\User;
+use App\Models\UserOtp;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use App\Traits\HasResponse;
+
 class AuthController extends ApiController
 {
     use HasResponse;
@@ -52,6 +54,19 @@ class AuthController extends ApiController
         return $this->respondWithToken($token);
     }
 
+
+
+    public function resetPassword(Request $request)
+    {
+        $isExists = UserOtp::where(['phone' => $request->phone, 'otp' => $request->otp, 'status' => 0])->first();
+        if ($isExists) {
+            UserOtp::where(['phone' => $request->phone, 'otp' => $request->otp])->update(['status' => 1]);
+            User::where('phone', $request->phone)->update(['password' => bcrypt($request->password)]);
+        }
+        return $this->json([]);
+    }
+
+
     /**
      * Get the authenticated User.
      *
@@ -59,7 +74,8 @@ class AuthController extends ApiController
      */
     public function me()
     {
-        return $this->json(auth()->user());
+        $user = User::where('id', auth('api')->id())->with('followed')->with('following')->with('images')->first();
+        return $this->json($user);
     }
 
     /**

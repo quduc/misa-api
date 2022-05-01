@@ -5,17 +5,22 @@ namespace App\Http\Controllers\Auth;
 use App\Helpers\MetaSeoRender;
 use App\Http\Controllers\Api\ApiController;
 use App\Models\User;
+use App\Models\UserOtp;
 use App\Providers\RouteServiceProvider;
 use App\Traits\HasResponse;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends ApiController
 {
     use HasResponse;
+
+
+
     /*
     |--------------------------------------------------------------------------
     | Register Controller
@@ -72,11 +77,14 @@ class RegisterController extends ApiController
     public function register(Request $request)
     {
         if ($request->wantsJson() && !$request->confirm) {
-            $this->validator($request->all())->validate();
-
-            return $this->json([], 'success');
+            if (UserOtp::where(['phone' => $request->phone, 'otp' => $request->otp, 'status' => 0])->first()) {
+                $this->validator($request->all())->validate();
+                UserOtp::where(['phone' => $request->phone, 'otp' => $request->otp])->update(['status' => 1]);
+                return $this->json([], 'success');
+            } else {
+                return $this->responseError('Otp invalid', ['otp' => 'Otp invalid']);
+            }
         }
-
         return $this->traitRegister($request);
     }
 
@@ -90,7 +98,6 @@ class RegisterController extends ApiController
     {
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
-            // 'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['required', 'string', 'max:12', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
         ]);
@@ -106,7 +113,6 @@ class RegisterController extends ApiController
     {
         $user = (new User())->forceFill([
             'name' => $data['name'],
-            // 'email' => $data['email'],
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
         ]);

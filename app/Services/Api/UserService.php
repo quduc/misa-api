@@ -9,7 +9,7 @@ class UserService
 {
     private const OTP_URL = "http://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_post_json/";
 
-    public function __construct(private UserRepository $userRepository)
+    public function __construct(private UserRepository $userRepository, private UserOtpService $userOtpService)
     {
     }
 
@@ -26,6 +26,9 @@ class UserService
             "content-type" => "application/json"
         ])->post(self::OTP_URL, $this->prepareParams($phone, $otp));
         $result = json_decode($response->body(), true);
+        if ($result['CodeResult'] === '100') {
+            $this->userOtpService->store($otp, $phone);
+        }
         return $result['CodeResult'] === '100' ? $otp : null;
     }
     function prepareParams($phone, $otp)

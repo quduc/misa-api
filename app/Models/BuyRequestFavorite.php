@@ -6,20 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProductMedia extends Model
+class BuyRequestFavorite extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'product_medias';
+    protected $table = 'buy_request_favorites';
     protected $fillable = [
-        'product_id',
-        'url'
+        'buy_request_id',
+        'user_id'
     ];
-    protected $appends = [
-        'url_full'
-    ];
-    public function getUrlFullAttribute()
+
+    public function product()
     {
-        return asset($this->url);
+        return $this->belongsTo(Car::class, 'buy_request_id');
     }
 }

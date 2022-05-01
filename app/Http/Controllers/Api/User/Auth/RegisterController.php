@@ -30,7 +30,7 @@ class RegisterController extends \App\Http\Controllers\Auth\RegisterController
         $data = [
             'otp' => $this->userService->sendOTP($request->phone)
         ];
-        return $this->responseData($data);
+        return $this->json($data);
     }
 
     public function sendOTP(Request $request)

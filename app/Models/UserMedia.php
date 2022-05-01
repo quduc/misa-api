@@ -6,13 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProductMedia extends Model
-{
+class UserMedia extends Model {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'product_medias';
+    protected $table = 'user_medias';
     protected $fillable = [
-        'product_id',
+        'user_id',
         'url'
     ];
     protected $appends = [
@@ -22,4 +21,6 @@ class ProductMedia extends Model
     {
         return asset($this->url);
     }
+
+
 }

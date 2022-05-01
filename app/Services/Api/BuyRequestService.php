@@ -2,22 +2,22 @@
 
 namespace App\Services\Api;
 
+use App\Repositories\BuyRequestRepository;
 use App\Repositories\ProductMediaRepository;
-use App\Repositories\ProductRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
-class  ProductService
+class  BuyRequestService
 {
     public function __construct(
-        private ProductRepository      $productRepository,
+        private BuyRequestRepository      $buyRequestRepository,
         private ProductMediaRepository $productMediaRepository
     ) {
     }
 
     public function findByContactCode(string $contactCode)
     {
-        return $this->productRepository->findBy($contactCode, 'contact_code');
+        return $this->buyRequestRepository->findBy($contactCode, 'contact_code');
     }
 
     public function getListSearch(array $params = [], $userIdFavorite = null, $limit = 10)
@@ -28,7 +28,6 @@ class  ProductService
             'user_id' => Arr::get($params, 'user_id'),
             'is_active'  => Arr::get($params, 'is_active'),
             'category_id'  => Arr::get($params, 'category_id'),
-            'is_available'  => Arr::get($params, 'is_available'),
 
         ];
         $whereBetweens = [
@@ -50,36 +49,33 @@ class  ProductService
             'where_likes'    => $whereLikes,
             'sort'           => Arr::get($params, 'sort', 'updated_at:desc'),
         ];
-
         if (!$userIdFavorite) {
-            return $this->productRepository
-                ->productFilter($params)
+            return $this->buyRequestRepository
+                ->buyRequestFilter($params)
                 ->withCount('favorite')
                 ->paginate(10);
         }
-
-
-        return $this->productRepository->productFilter($params)
+        return $this->buyRequestRepository->buyRequestFilter($params)
             ->when($keyword, function ($query) use ($keyword) {
                 $query->orWhere('description', 'LIKE', '%' . $keyword . '%');
             })
             ->when(
                 $onlyFavorite,
                 function ($query) use ($userIdFavorite) {
-                    $query->join('product_favorites AS cf', function ($join) use ($userIdFavorite) {
-                        $join->on('cf.product_id', '=', 'products.id')
+                    $query->join('buy_request_favorites AS cf', function ($join) use ($userIdFavorite) {
+                        $join->on('cf.buy_request_id', '=', 'buy_requests.id')
                             ->where('cf.user_id', $userIdFavorite)
                             ->whereNull('cf.deleted_at');
                     });
                 },
                 function ($query) use ($userIdFavorite) {
-                    $query->leftJoin('product_favorites AS cf', function ($join) use ($userIdFavorite) {
-                        $join->on('cf.product_id', '=', 'products.id')
+                    $query->leftJoin('buy_request_favorites AS cf', function ($join) use ($userIdFavorite) {
+                        $join->on('cf.buy_request_id', '=', 'buy_requests.id')
                             ->where('cf.user_id', $userIdFavorite);
                     });
                 }
             )
-            ->select('products.*', DB::raw("IF(cf.id, IF(cf.deleted_at, 0, 1), 0) as has_favorite"))
+            ->select('buy_requests.*', DB::raw("IF(cf.id, IF(cf.deleted_at, 0, 1), 0) as has_favorite"))
             ->withCount('favorite')
             ->paginate($limit);
     }
@@ -100,29 +96,24 @@ class  ProductService
         $params      = [
             'where_equals' => $whereEquals,
         ];
-        return $this->productRepository->filter($params)
+        return $this->buyRequestRepository->filter($params)
             ->has('orders')
             ->withCount('orders')
             ->paginate($limit);
     }
 
-    private function getValueWhereIn(array $params, string $key)
-    {
-        $value = Arr::get($params, $key);
-        return is_string($value) ? explode(',', Arr::get($params, $key)) : $value;
-    }
 
     public function getListHome(int $limit = 8)
     {
         $params = [
             'sort' => 'updated_at:desc'
         ];
-        return $this->productRepository->getList($params, $limit);
+        return $this->buyRequestRepository->getList($params, $limit);
     }
 
     public function show(int $id, int $userId = null)
     {
-        return $this->productRepository->getModel()
+        return $this->buyRequestRepository->getModel()
             ->with('images')
             ->when($userId, function ($query) use ($userId) {
                 $query->where('user_id', $userId);
@@ -131,7 +122,7 @@ class  ProductService
 
     public function showWithFavorite(int $id, int $userIdFavorite = null)
     {
-        return $this->productRepository->getModel()
+        return $this->buyRequestRepository->getModel()
             ->withCount('favorite')
             ->with([
                 'images',
@@ -163,7 +154,7 @@ class  ProductService
         if (!$car) return false;
         if ($car->status === 1) return false;
 
-        $this->productRepository->update($id, [
+        $this->buyRequestRepository->update($id, [
             'status' => 1
         ]);
         return true;
@@ -178,7 +169,7 @@ class  ProductService
             'user_id' => $userId = Arr::get($params, 'user_id')
         ]);
 
-        $car = $this->productRepository->create($data);
+        $car = $this->buyRequestRepository->create($data);
         $car->update([
             'contact_code' => $this->createContactCode($userId, $car->id)
         ]);
@@ -192,7 +183,7 @@ class  ProductService
     {
         $data        = $params;
         $mediaInActive = Arr::get($params, 'media_in_active');
-        $product = $this->productRepository->update($id, $data);
+        $product = $this->buyRequestRepository->update($id, $data);
         if (!empty($mediaInActive)) {
             $product->images()->whereIn('id', $mediaInActive)->delete();
         }

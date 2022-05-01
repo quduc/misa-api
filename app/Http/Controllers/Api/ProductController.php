@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\ApiController;
+use App\Services\Api\ProductFavoriteService;
 use App\Services\Api\ProductService;
 use App\Services\Api\SearchHistoryService;
 use Illuminate\Http\Request;
@@ -16,9 +17,8 @@ class ProductController extends ApiController
      */
     public function __construct(
         private ProductService         $productService,
-        // private CarFavoriteService $carFavoriteService,
+        private ProductFavoriteService $productFavoriteService,
         private SearchHistoryService $searchHistoryService,
-        // private CarMediaService $carMediaService
     ) {
     }
 
@@ -27,10 +27,9 @@ class ProductController extends ApiController
         $params = $request->all();
         $params['is_active'] = 1;
         $data = $this->productService->getListSearch($params, auth('api')->id(), $request->get('limit', 10));
-
-        // if (auth('api')->check()) {
-        //     $this->searchHistoryService->store($request->query(), auth('api')->user());
-        // }
+        if (auth('api')->check()) {
+            $this->searchHistoryService->store($request->query(), auth('api')->user());
+        }
 
         return $this->json($data);
     }
@@ -59,10 +58,10 @@ class ProductController extends ApiController
     public function favorite($id)
     {
         $params = [
-            'car_id'  => $id,
+            'product_id'  => $id,
             'user_id' => auth('api')->id(),
         ];
-        $result = $this->carFavoriteService->store($params);
+        $result = $this->productFavoriteService->store($params);
 
         return $this->json([], $result ? 'success' : 'error', $result ? 200 : 400);
     }
@@ -77,13 +76,6 @@ class ProductController extends ApiController
 
         $data = $this->productService->getListSearch($params, auth('api')->id());
 
-        return $this->json($data);
-    }
-
-    public function getListSame($id)
-    {
-        $car  = $this->productService->show($id);
-        $data = $this->productService->getListSameBodyType($car->id, $car->body_type_id);
         return $this->json($data);
     }
 }

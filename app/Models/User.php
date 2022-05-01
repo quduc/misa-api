@@ -10,7 +10,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject {
+class User extends Authenticatable implements JWTSubject
+{
     use HasFactory, Notifiable;
 
     const ACTIVE = 1;
@@ -22,6 +23,7 @@ class User extends Authenticatable implements JWTSubject {
      * @var array<int, string>
      */
     protected $fillable = [
+        'id',
         'name',
         'email',
         'phone',
@@ -29,7 +31,8 @@ class User extends Authenticatable implements JWTSubject {
         'address',
         'gender',
         'identity_card_number',
-        'birthday'
+        'birthday',
+        'profile_image'
     ];
 
     /**
@@ -42,6 +45,11 @@ class User extends Authenticatable implements JWTSubject {
         'remember_token',
     ];
 
+    protected $appends = [
+        'profile_image_url'
+    ];
+
+
     /**
      * The attributes that should be cast.
      *
@@ -50,6 +58,17 @@ class User extends Authenticatable implements JWTSubject {
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function followed()
+    {
+        return $this->hasMany(\App\Models\UserFollow::class, 'followed_id', 'id');
+    }
+
+    public function following()
+    {
+        return $this->hasMany(\App\Models\UserFollow::class, 'following_id', 'id');
+    }
+
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -69,5 +88,10 @@ class User extends Authenticatable implements JWTSubject {
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function getProfileImageUrlAttribute()
+    {
+        return asset($this->profile_image);
     }
 }
